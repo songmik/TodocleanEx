@@ -6,6 +6,7 @@ import com.example.a23_todoclean.domain.todo.InsertToDoListUseCase
 import com.example.a23_todoclean.presentation.list.ListViewModel
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
+import org.junit.Test
 import org.koin.test.inject
 
 // LiveViewModel을 테스트하기 위한 Unit Test Class
@@ -35,4 +36,28 @@ internal class ListViewModelTest: ViewModelTest() {
     private fun initData() = runBlockingTest {
         insertToDoListUseCase(mockList)
     }
+
+    @Test
+    fun 'test viewModel fetch'(): Unit = runBlockingTest {
+        val testObservable = viewModel.todoListLiveData.test()
+        viewModel.fetchData()
+        testObservable.assertValueSequence(
+            listOf(
+                mockList
+            )
+        )
+    }
+
+    @Test
+    fun 'test Item Update'(): Unit = runBlockingTest {
+        val todo = ToDoEntity(
+            id = 1,
+            title = "title 1",
+            description = "description 1",
+            hasCompleted = true
+        )
+        viewModel.updateEntity(todo)
+        assert()
+    }
+
 }
