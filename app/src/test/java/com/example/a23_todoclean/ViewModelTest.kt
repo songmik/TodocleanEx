@@ -1,10 +1,12 @@
 package com.example.a23_todoclean
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import com.example.a23_todoclean.di.appTestModule
 import com.example.a23_todoclean.livedata.LiveDataTestObserver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -21,11 +23,15 @@ import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
 internal abstract class ViewModelTest: KoinTest {
 
     @get:Rule
     val mockitoRule: MockitoRule = MockitoJUnit.rule()
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
 
     @Mock
     private lateinit var context: Application

@@ -27,4 +27,13 @@ class TestToDoRepository: ToDoRepository {
     override suspend fun getToDoItem(itemId: Long): ToDoEntity? {
         return toDoList.find { it.id == itemId }
     }
+
+    override suspend fun deleteToDoItem(id: Long) {
+        val foundToDoEntity = toDoList.find { it.id == id }
+        this.toDoList.removeAt(toDoList.indexOf(foundToDoEntity))
+    }
+
+    override suspend fun deleteAll() {
+        this.toDoList.clear()
+    }
 }
