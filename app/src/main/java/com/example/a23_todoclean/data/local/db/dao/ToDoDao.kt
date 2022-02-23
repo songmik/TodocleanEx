@@ -26,3 +26,4 @@ interface ToDoDao {
 
     @Update
     suspend fun update(toDoEntity: ToDoEntity)
+}
