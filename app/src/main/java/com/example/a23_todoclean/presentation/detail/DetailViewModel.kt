@@ -6,10 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.a23_todoclean.data.entity.ToDoEntity
 import com.example.a23_todoclean.domain.todo.DeleteToDoItemUseCase
 import com.example.a23_todoclean.domain.todo.GetToDoItemUseCase
-import com.example.a23_todoclean.domain.todo.InsertToDoListUseCase
+import com.example.a23_todoclean.domain.todo.InsertToDoUseCase
 import com.example.a23_todoclean.domain.todo.UpdateToDoUseCase
 import com.example.a23_todoclean.presentation.BaseViewModel
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 internal class DetailViewModel(
     var detailMode: DetailMode,
@@ -17,42 +18,23 @@ internal class DetailViewModel(
     private val getToDoItemUseCase: GetToDoItemUseCase,
     private val deleteToDoItemUseCase: DeleteToDoItemUseCase,
     private val updateToDoUseCase: UpdateToDoUseCase,
-    private val insertToDoListUseCase: InsertToDoListUseCase
-):BaseViewModel() {
+    private val insertToDoUseCase: InsertToDoUseCase
+) : BaseViewModel() {
 
-    private var _toDoDetailLiveData = MutableLiveData<ToDoDetailState>(ToDoDetailState.UnInitialized)
+    private var _toDoDetailLiveData =
+        MutableLiveData<ToDoDetailState>(ToDoDetailState.UnInitialized)
     val toDoDetailLiveData: LiveData<ToDoDetailState> = _toDoDetailLiveData
 
-    override fun fetchData(): viewModelScope.launch{
-        when(detailMode){
-            DetailMode.WRITE -> {
-                _toDoDetailLiveData.postValue(ToDoDetailState.Write)
-            }
-            DetailMode.DETAIL -> {
-                _toDoDetailLiveData.postValue(ToDoDetailState.Loading)
-                try{
-                    getToDoItemUseCase(id)?.let {
-                        _toDoDetailLiveData.postValue(ToDoDetailState.Success(it))
-                    } ?: kotlin.run {
-                        _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-                    }
-                } catch(e: Exception){
-                   e.printStackTrace()
-                    _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-                 }
-            }
-        }
-    }
 
     fun deleteToDo() = viewModelScope.launch {
         _toDoDetailLiveData.postValue(ToDoDetailState.Loading)
-        try{
+        try {
             deleteToDoItemUseCase(id)
             _toDoDetailLiveData.postValue(ToDoDetailState.Delete)
-        } catch(e: Exception){
-           e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
             _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-         }
+        }
     }
 
     fun setModifyMode() = viewModelScope.launch {
@@ -61,20 +43,20 @@ internal class DetailViewModel(
 
     fun writeToDo(title: String, description: String) = viewModelScope.launch {
         _toDoDetailLiveData.postValue(ToDoDetailState.Loading)
-        when(detailMode){
+        when (detailMode) {
             DetailMode.WRITE -> {
-                try{
+                try {
                     val toDoEntity = ToDoEntity(title = title, description = description)
                     id = insertToDoUseCase(toDoEntity)
                     _toDoDetailLiveData.postValue(ToDoDetailState.Success(toDoEntity))
                     detailMode = DetailMode.DETAIL
-                } catch(e: Exception){
-                   e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
                     _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-                 }
+                }
             }
             DetailMode.DETAIL -> {
-                try{
+                try {
                     getToDoItemUseCase(id)?.let {
                         val updateToDoEntity = it.copy(title = title, description = description)
                         updateToDoUseCase(updateToDoEntity)
@@ -82,10 +64,31 @@ internal class DetailViewModel(
                     } ?: kotlin.run {
                         _toDoDetailLiveData.postValue(ToDoDetailState.Error)
                     }
-                } catch(e: Exception){
-                   e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
                     _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-                 }
+                }
+            }
+        }
+    }
+
+    override fun fetchData() = viewModelScope.launch {
+        when (detailMode) {
+            DetailMode.WRITE -> {
+                _toDoDetailLiveData.postValue(ToDoDetailState.Write)
+            }
+            DetailMode.DETAIL -> {
+                _toDoDetailLiveData.postValue(ToDoDetailState.Loading)
+                try {
+                    getToDoItemUseCase(id)?.let {
+                        _toDoDetailLiveData.postValue(ToDoDetailState.Success(it))
+                    } ?: kotlin.run {
+                        _toDoDetailLiveData.postValue(ToDoDetailState.Error)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    _toDoDetailLiveData.postValue(ToDoDetailState.Error)
+                }
             }
         }
     }

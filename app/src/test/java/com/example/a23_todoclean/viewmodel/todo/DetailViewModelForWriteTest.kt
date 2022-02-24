@@ -2,13 +2,19 @@ package com.example.a23_todoclean.viewmodel.todo
 
 import com.example.a23_todoclean.ViewModelTest
 import com.example.a23_todoclean.data.entity.ToDoEntity
+import com.example.a23_todoclean.presentation.detail.DetailMode
+import com.example.a23_todoclean.presentation.detail.DetailViewModel
+import com.example.a23_todoclean.presentation.detail.ToDoDetailState
 import com.example.a23_todoclean.presentation.list.ListViewModel
+import com.example.a23_todoclean.presentation.list.ToDoListState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.koin.core.parameter.parametersOf
 import org.koin.test.inject
 
+@ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 internal class DetailViewModelForWriteTest : ViewModelTest() {
 
@@ -25,7 +31,7 @@ internal class DetailViewModelForWriteTest : ViewModelTest() {
     )
 
     @Test
-    fun 'test viewModel fetch'() = runBlockingTest {
+    fun `test viewModel fetch`() = runTest {
         val testObservable = detailViewModel.toDoDetailLiveData.test()
 
         detailViewModel.fetchData()
@@ -39,16 +45,16 @@ internal class DetailViewModelForWriteTest : ViewModelTest() {
     }
 
     @Test
-    fun 'test insert todo'() = runBlockingTest {
+    fun `test insert todo`() = runTest {
         val detailTestObservable = detailViewModel.toDoDetailLiveData.test()
-        val listTestObservable = listViewModel.todoListLiveData.test()
+        val listTestObservable = listViewModel.toDoListLiveData.test()
 
         detailViewModel.writeToDo(
             title = todo.title,
             description = todo.description
         )
 
-        detailViewModel.assertValueSequence(
+        detailTestObservable.assertValueSequence(
             listOf(
                 ToDoDetailState.UnInitialized,
                 ToDoDetailState.Loading,
@@ -62,9 +68,9 @@ internal class DetailViewModelForWriteTest : ViewModelTest() {
         listViewModel.fetchData()
         listTestObservable.assertValueSequence(
             listOf(
-                ToDoDetailState.UnInitialized,
-                ToDoDetailState.Loading,
-                ToDoDetailState.Success(listOf(todo))
+                ToDoListState.UnInitialized,
+                ToDoListState.Loading,
+                ToDoListState.Success(listOf(todo))
             )
         )
     }

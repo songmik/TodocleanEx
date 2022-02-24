@@ -5,18 +5,20 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.view.isGone
+import com.example.a23_todoclean.databinding.ActivityDetailBinding
 import com.example.a23_todoclean.presentation.BaseActivity
-import org.koin.android.viewmodel.compat.ScopeCompat.viewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 internal class DetailActivity: BaseActivity<DetailViewModel>() {
 
     private lateinit var binding: ActivityDetailBinding
 
-    override val viewModel: DetailViewModel by viewModel{
+    override val viewModel: DetailViewModel by viewModel {
         parametersOf(
             intent.getSerializableExtra(DETAIL_MODE_KEY),
-            intent.getLongArrayExtra(TODO_ID_KEY, -1)
+            intent.getLongExtra(TODO_ID_KEY, -1)
         )
     }
 
@@ -42,7 +44,7 @@ internal class DetailActivity: BaseActivity<DetailViewModel>() {
         setResult(Activity.RESULT_OK)
     }
 
-    override fun observeData()  =viewModel.toDoDetailLiveData.observe(this@DetailActivity) {
+    override fun observeData() = viewModel.toDoDetailLiveData.observe(this@DetailActivity) {
         when(it){
             is ToDoDetailState.UnInitialized -> {
                 initViews(binding)
@@ -71,22 +73,60 @@ internal class DetailActivity: BaseActivity<DetailViewModel>() {
     }
 
     private fun initViews(binding: ActivityDetailBinding) = with(binding){
+        titleInput.isEnabled = false
+        descriptionInput.isEnabled = false
 
+        deleteButton.isGone = true
+        modifyButton.isGone = true
+        updateButton.isGone = true
+
+        deleteButton.setOnClickListener {
+            viewModel.deleteToDo()
+        }
+        modifyButton.setOnClickListener {
+            viewModel.setModifyMode()
+        }
+        updateButton.setOnClickListener {
+            viewModel.writeToDo(
+                title = titleInput.text.toString(),
+                description = descriptionInput.text.toString()
+            )
+        }
     }
 
     private fun handleLoadingState() = with(binding){
-
+        progressBar.isGone = false
     }
 
     private fun handleModifyState() = with(binding){
+        titleInput.isEnabled = true
+        descriptionInput.isEnabled = true
+
+        deleteButton.isGone = true
+        modifyButton.isGone = true
+        updateButton.isGone = false
 
     }
 
     private fun handleWriteState() = with(binding){
+        titleInput.isEnabled = true
+        descriptionInput.isEnabled = true
 
+        updateButton.isGone = false
     }
 
     private fun handleSuccessState(state: ToDoDetailState.Success) = with(binding){
+        progressBar.isGone = true
 
+        titleInput.isEnabled = false
+        descriptionInput.isEnabled = false
+
+        deleteButton.isGone = false
+        modifyButton.isGone = false
+        updateButton.isGone = true
+
+        val toDoItem = state.toDoItem
+        titleInput.setText(toDoItem.title)
+        descriptionInput.setText(toDoItem.description)
     }
 }

@@ -5,13 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.view.isGone
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.a23_todoclean.R
+import com.example.a23_todoclean.databinding.ActivityListBinding
 import com.example.a23_todoclean.presentation.BaseActivity
 import com.example.a23_todoclean.presentation.detail.DetailActivity
+import com.example.a23_todoclean.presentation.detail.DetailMode
 import com.example.a23_todoclean.presentation.view.ToDoAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import org.koin.android.ext.android.bind
+import org.koin.android.viewmodel.ext.android.viewModel
 import kotlin.coroutines.CoroutineContext
 
 internal class ListActivity: BaseActivity<ListViewModel>(), CoroutineScope {
@@ -33,7 +38,7 @@ internal class ListActivity: BaseActivity<ListViewModel>(), CoroutineScope {
     }
 
     override fun observeData() {
-        viewModel.todoListLiveData.observe(this){
+        viewModel.toDoListLiveData.observe(this){
             when(it){
                 is ToDoListState.UnInitialized -> {
                     initViews(binding)
@@ -50,15 +55,47 @@ internal class ListActivity: BaseActivity<ListViewModel>(), CoroutineScope {
     }
 
     private fun initViews(binding: ActivityListBinding) = with(binding){
+        recyclerView.layoutManager = LinearLayoutManager(this@ListActivity, LinearLayoutManager.VERTICAL,false)
+        recyclerView.adapter = adapter
 
+        refreshLayout.setOnRefreshListener {
+            viewModel.fetchData()
+        }
+
+        addToDoButton.setOnClickListener {
+            startActivityForResult(
+                DetailActivity.getIntent(this@ListActivity, DetailMode.WRITE),
+                DetailActivity.FETCH_REQUEST_CODE
+            )
+        }
     }
 
     private fun handleLoadingState() = with(binding){
-
+        refreshLayout.isRefreshing = true
     }
 
     private fun handleSuccessState(state: ToDoListState.Success) = with(binding){
+        refreshLayout.isEnabled = state.toDoList.isNotEmpty()
+        refreshLayout.isRefreshing = false
 
+        if(state.toDoList.isEmpty()){
+            emptyResultTextView.isGone = false
+            recyclerView.isGone = true
+        } else {
+            emptyResultTextView.isGone = true
+            recyclerView.isGone = false
+            adapter.setToDoList(
+                state.toDoList,
+                toDoItemClickListener = {
+                    startActivityForResult(
+                        DetailActivity.getIntent(this@ListActivity, it.id, DetailMode.DETAIL),
+                        DetailActivity.FETCH_REQUEST_CODE
+                    )
+                }, toDoCheckListener = {
+                    viewModel.updateEntity(it)
+                }
+            )
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -69,16 +106,19 @@ internal class ListActivity: BaseActivity<ListViewModel>(), CoroutineScope {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-
-        }
-        else -> {
-            super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_delete_all -> {
+                viewModel.deleteAll()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate()
+        menuInflater.inflate(R.menu.list_menu, menu)
         return true
     }
 

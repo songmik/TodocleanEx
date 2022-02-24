@@ -4,11 +4,12 @@ import com.example.a23_todoclean.ViewModelTest
 import com.example.a23_todoclean.data.entity.ToDoEntity
 import com.example.a23_todoclean.domain.todo.GetToDoItemUseCase
 import com.example.a23_todoclean.domain.todo.InsertToDoListUseCase
+import com.example.a23_todoclean.domain.todo.InsertToDoUseCase
 import com.example.a23_todoclean.presentation.list.ListViewModel
 import com.example.a23_todoclean.presentation.list.ToDoListState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.koin.test.inject
@@ -40,13 +41,13 @@ internal class ListViewModelTest: ViewModelTest() {
 
     }
 
-    private fun initData() = runBlockingTest {
+    private fun initData() = runTest {
         insertToDoListUseCase(mockList)
     }
 
     @Test
-    fun 'test viewModel fetch'(): Unit = runBlockingTest {
-        val testObservable = viewModel.todoListLiveData.test()
+    fun `test viewModel fetch`(): Unit = runTest {
+        val testObservable = viewModel.toDoListLiveData.test()
         viewModel.fetchData()
         testObservable.assertValueSequence(
             listOf(
@@ -58,7 +59,7 @@ internal class ListViewModelTest: ViewModelTest() {
     }
 
     @Test
-    fun 'test Item Update'(): Unit = runBlockingTest {
+    fun `test Item Update`(): Unit = runTest {
         val todo = ToDoEntity(
             id = 1,
             title = "title 1",
@@ -70,14 +71,14 @@ internal class ListViewModelTest: ViewModelTest() {
     }
 
     @Test
-    fun 'test Item Delete All'(): Unit = runBlockingTest {
-        val testObservable = viewModel.todoListLiveData.test()
+    fun `test Item Delete All`(): Unit = runTest {
+        val testObservable = viewModel.toDoListLiveData.test()
         viewModel.deleteAll()
         testObservable.assertValueSequence(
             listOf(
                 ToDoListState.UnInitialized,
                 ToDoListState.Loading,
-                ToDoListState.Suceess(listOf())
+                ToDoListState.Success(listOf())
 
             )
 

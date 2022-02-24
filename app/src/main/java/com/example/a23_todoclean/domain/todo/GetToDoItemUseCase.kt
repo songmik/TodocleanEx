@@ -8,8 +8,8 @@ internal class GetToDoItemUseCase(
     private val toDoRepository: ToDoRepository
 ): UseCase {
 
-    suspend operator fun invoke(itemId: Long):ToDoEntity? {
-        return toDoRepository.getToDoItem(itemId)
+    suspend operator fun invoke(id: Long):ToDoEntity? {
+        return toDoRepository.getToDoItem(id)
 
     }
 }
