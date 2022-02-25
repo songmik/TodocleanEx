@@ -4,10 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/drawable/ic_plus.xml" value="0.1" />
-        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/activity_detail.xml" value="0.1" />
+        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/activity_detail.xml" value="0.25" />
+        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/activity_list.xml" value="0.10833333333333334" />
         <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/activity_main.xml" value="0.1" />
-        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/viewholder_todo_item.xml" value="0.1" />
-        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/menu/list_menu.xml" value="0.1" />
+        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/layout/viewholder_todo_item.xml" value="0.25" />
+        <entry key="..\:/Users/ksong/AndroidStudioProjects/23_todoclean/app/src/main/res/menu/list_menu.xml" value="0.165" />
       </map>
     </option>
   </component>
